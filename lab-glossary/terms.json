@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "term": "アブレーション",
+    "description": "材料表面がレーザー照射などで蒸発、飛散、除去される現象。加工条件や表面観察の文脈で使われる。",
+    "tags": [
+      "レーザー",
+      "加工",
+      "材料"
+    ],
+    "links": [
+      {
+        "title": "Laser ablation - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Laser_ablation"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "term": "キャリブレーション",
+    "description": "測定機器や解析モデルの出力が基準値と合うように補正すること。実験データの信頼性を保つための基本作業。",
+    "tags": [
+      "品質管理",
+      "実験",
+      "測定"
+    ],
+    "links": [
+      {
+        "title": "Calibration - NIST",
+        "url": "https://www.nist.gov/calibrations"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "term": "フーリエ変換",
+    "description": "時間や空間に沿った信号を周波数成分に分解する数学的手法。スペクトル解析、画像処理、信号処理で広く使われる。",
+    "tags": [
+      "信号処理",
+      "数学",
+      "解析"
+    ],
+    "links": [
+      {
+        "title": "Fourier transform - Wolfram MathWorld",
+        "url": "https://mathworld.wolfram.com/FourierTransform.html"
+      }
+    ]
+  }
+]

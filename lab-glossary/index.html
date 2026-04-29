@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>研究室 用語ライブラリ</title>
+    <link rel="stylesheet" href=".styles.css">
+    <script id="embeddedTerms" type="application/json">
+[
+  {
+    "id": 1,
+    "term": "アブレーション",
+    "description": "材料表面がレーザー照射などで蒸発、飛散、除去される現象。加工条件や表面観察の文脈で使われる。",
+    "tags": [
+      "レーザー",
+      "加工",
+      "材料"
+    ],
+    "links": [
+      {
+        "title": "Laser ablation - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Laser_ablation"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "term": "キャリブレーション",
+    "description": "測定機器や解析モデルの出力が基準値と合うように補正すること。実験データの信頼性を保つための基本作業。",
+    "tags": [
+      "品質管理",
+      "実験",
+      "測定"
+    ],
+    "links": [
+      {
+        "title": "Calibration - NIST",
+        "url": "https://www.nist.gov/calibrations"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "term": "フーリエ変換",
+    "description": "時間や空間に沿った信号を周波数成分に分解する数学的手法。スペクトル解析、画像処理、信号処理で広く使われる。",
+    "tags": [
+      "信号処理",
+      "数学",
+      "解析"
+    ],
+    "links": [
+      {
+        "title": "Fourier transform - Wolfram MathWorld",
+        "url": "https://mathworld.wolfram.com/FourierTransform.html"
+      }
+    ]
+  }
+]
+    </script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Research Lab Glossary</p>
+        <h1>研究室 用語ライブラリ</h1>
+      </div>
+      <div class="header-actions">
+        <button class="icon-button" id="themeToggle" type="button" aria-label="ライト/ダーク切替" title="ライト/ダーク切替">D</button>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <nav class="view-tabs" aria-label="画面切替">
+        <button class="view-tab active" id="browseTab" type="button" data-view="browse">閲覧</button>
+        <button class="view-tab" id="addTab" type="button" data-view="add">追加</button>
+      </nav>
+
+      <section id="browseView">
+        <section class="toolbar" aria-label="検索と絞り込み">
+          <label class="search-box">
+            <span>検索</span>
+            <input id="searchInput" type="search" placeholder="用語・解説・タグを検索">
+          </label>
+          <div class="stats" id="resultStats">0件</div>
+        </section>
+
+        <section class="tag-panel" aria-label="タグ一覧">
+          <button class="tag-chip active" type="button" data-tag="all">すべて</button>
+          <div id="tagList" class="tag-list"></div>
+        </section>
+
+        <section class="content-grid">
+          <div class="term-list-wrap">
+            <div class="section-heading">
+              <h2>用語</h2>
+              <span id="activeFilter">すべて</span>
+            </div>
+            <div class="term-list" id="termList" aria-live="polite"></div>
+          </div>
+
+          <article class="term-detail" id="termDetail">
+            <p class="empty-state">用語を選択してください。</p>
+          </article>
+        </section>
+      </section>
+
+      <section class="add-view hidden" id="addView">
+        <form class="add-form" id="termForm">
+          <div class="section-heading form-heading">
+            <h2>用語を追加</h2>
+            <span id="saveModeLabel">ブラウザ保存</span>
+          </div>
+
+          <div class="form-grid">
+            <label>
+              <span>用語</span>
+              <input id="termField" name="term" required placeholder="例: オーバーフィッティング">
+            </label>
+
+            <label>
+              <span>タグ</span>
+              <input id="tagsField" name="tags" placeholder="解析, 機械学習, 統計">
+            </label>
+          </div>
+
+          <label>
+            <span>解説</span>
+            <textarea id="descriptionField" name="description" required rows="6" placeholder="研究室で使う意味や、実験・論文で出てきた文脈を書きます。"></textarea>
+          </label>
+
+          <label>
+            <span>参考リンク</span>
+            <textarea id="linksField" name="links" rows="5" placeholder="タイトル | https://example.com&#10;https://example.com/reference"></textarea>
+          </label>
+
+          <div class="form-actions">
+            <button class="primary-button" type="submit">追加</button>
+            <button class="secondary-button" type="reset">クリア</button>
+            <span class="form-message" id="formMessage" aria-live="polite"></span>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
