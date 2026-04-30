@@ -8,13 +8,41 @@
 </head>
 
 <body>
-    <script>
-        // JavaScriptで自動遷移（ページロード時）
-        window.location.href = './portfolio-site/index.html'; -->
+    <div id="loading-message">ポートフォリオサイトに遷移中...</div>
+    <div id="error-message" style="display: none; color: red; margin: 20px;">
+        <p>遷移に失敗しました。下のボタンをクリックしてください。</p>
+        <button onclick="goToPortfolio()" style="padding: 10px 20px; font-size: 16px;">ポートフォリオサイトへ</button>
+    </div>
 
-        // JavaScriptで遷移（クリック時）
+    <script>
         function goToPortfolio() {
             window.location.href = './portfolio-site/index.html';
+        }
+
+        // ページロード時に自動遷移（タイムアウト機能付き）
+        window.addEventListener('load', function () {
+            // 100msの遅延後に遷移を試みる
+            setTimeout(function () {
+                try {
+                    goToPortfolio();
+                } catch (error) {
+                    console.error('遷移エラー:', error);
+                    showErrorMessage();
+                }
+            }, 100);
+
+            // 3秒でタイムアウト - 失敗時はエラーメッセージを表示
+            setTimeout(function () {
+                // まだ遷移していなければエラーメッセージを表示
+                if (document.getElementById('loading-message').style.display !== 'none') {
+                    showErrorMessage();
+                }
+            }, 3000);
+        });
+
+        function showErrorMessage() {
+            document.getElementById('loading-message').style.display = 'none';
+            document.getElementById('error-message').style.display = 'block';
         }
     </script>
 </body>
