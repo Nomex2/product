@@ -2,6 +2,33 @@
 
 const NAVS = ['Home','About','Works','Strengths','Achievements','FAQ'];
 
+const HOBBIES = [
+  {
+    name: 'AI Development',
+    kana: 'AI開発',
+    body: '新しいAPIやモデルを触りながら、日常の小さな不便を解くツールを作るのが好きです。',
+    note: 'prototype / prompt / automation',
+    color: '#2FD7FF',
+    icon: 'uploads/43_ai_technology_brain_icon.png',
+  },
+  {
+    name: 'Football',
+    kana: 'サッカー',
+    body: '小学校から高校まで続けてきた原点。チームで考え、走り、流れを変える感覚が今の開発にもつながっています。',
+    note: 'teamwork / tactics / persistence',
+    color: '#D6FF3B',
+    icon: 'uploads/44_soccer_icon.png',
+  },
+  {
+    name: 'Cafe Walk',
+    kana: 'カフェ巡り',
+    body: '空間、香り、音、照明まで含めて心地よい場所を探す時間が好きです。UIの雰囲気づくりにも影響しています。',
+    note: 'coffee / design / quiet time',
+    color: '#FF9B3D',
+    icon: 'uploads/45_idea_bulb_icon.png',
+  },
+];
+
 const WORKS = [
   { title: 'AI Chat Assistant', tags: ['React','OpenAI','TypeScript'], desc: 'OpenAI APIを活用したAIチャットアシスタントWebアプリ。会話履歴の保存機能付き。', accent: '#6C3CFF', dots: ['#FF5F57','#FEBC2E','#28C840'] },
   { title: 'Study Scheduler', tags: ['Next.js','Tailwind','AI'], desc: 'AIが最適なスケジュールを提案するスタジオ管理ツール。学習効率を最大化します。', accent: '#D6FF3B', dots: ['#FF5F57','#FEBC2E','#28C840'] },
@@ -23,25 +50,33 @@ const FAQS = [
   { q: 'Q. 副業の相談について詳しく教えてください。', a: 'Web制作、アプリ開発、AIツール開発など幅広くお受けしています。まずはメールまたはSNSでお気軽にご相談ください。' },
 ];
 
-function useReveal() {
+function useReveal(deps) {
   useEffect(() => {
     const els = document.querySelectorAll('.r');
     const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('on'); }), { threshold: 0.08 });
     els.forEach(el => obs.observe(el));
     return () => obs.disconnect();
-  }, []);
+  }, deps);
 }
 
-function Nav({ active }) {
-  const dark = ['about','strengths','faq','contact'].includes(active);
+function SiteLogo({ onClick }) {
+  return (
+    <button className="site-logo-btn" type="button" onClick={onClick} aria-label="Home">
+      <span className="nav-logo">R K.</span>
+    </button>
+  );
+}
+
+function Nav({ active, onNavigate }) {
+  const dark = ['about','strengths','faq','contact','hobbies'].includes(active);
   const [menuOpen, setMenuOpen] = useState(false);
-  const go = id => { const el = document.getElementById(id); if (el) window.scrollTo({ top: el.offsetTop - 64, behavior: 'smooth' }); setMenuOpen(false); };
+  const go = id => { onNavigate(id); setMenuOpen(false); };
 
   return (
     <>
       <nav className={`nav${dark ? ' dark' : ''}`}>
         <div className="nav-i">
-          <div className="nav-logo">R K.</div>
+          <SiteLogo onClick={() => go('home')} />
           <div className="nav-links">
             {NAVS.map(n => (
               <span key={n} className={`nav-link${active === n.toLowerCase() ? ' on' : ''}`} onClick={() => go(n.toLowerCase())}>{n}</span>
@@ -65,7 +100,224 @@ function Nav({ active }) {
   );
 }
 
-function Hero() {
+function HeroLogoGate({ onUnlock }) {
+  const gateRef = useRef(null);
+  const visualRef = useRef(null);
+  const draggingRef = useRef(false);
+  const lastAngleRef = useRef(null);
+  const traceRef = useRef(0);
+  const visualTraceRef = useRef(0);
+  const waterRef = useRef(0);
+  const renderFrameRef = useRef(null);
+  const returnFrameRef = useRef(null);
+  const returningRef = useRef(false);
+  const [opening, setOpening] = useState(false);
+  const [returning, setReturning] = useState(false);
+  const [tracing, setTracing] = useState(false);
+  const unlockAt = 340;
+
+  const paintGate = () => {
+    const progress = Math.min(1, visualTraceRef.current / unlockAt);
+    const waterProgress = Math.min(1, waterRef.current / unlockAt);
+    const el = visualRef.current;
+    if (!el) return;
+    el.style.setProperty('--gate-progress', progress);
+    el.style.setProperty('--gate-rotation', `${progress * 360}deg`);
+    el.style.setProperty('--water-scale', waterProgress);
+    el.style.setProperty('--water-opacity', 0.08 + waterProgress * 0.82);
+  };
+
+  const runVisualLoop = () => {
+    if (renderFrameRef.current) return;
+
+    const tick = () => {
+      if (draggingRef.current) {
+        visualTraceRef.current = traceRef.current;
+      } else {
+        const traceDiff = traceRef.current - visualTraceRef.current;
+        visualTraceRef.current += traceDiff * 0.2;
+        if (Math.abs(traceDiff) < 0.05) visualTraceRef.current = traceRef.current;
+      }
+
+      const waterDiff = visualTraceRef.current - waterRef.current;
+      waterRef.current += waterDiff * 0.075;
+      if (Math.abs(waterDiff) < 0.05) waterRef.current = visualTraceRef.current;
+
+      paintGate();
+
+      const stillMoving =
+        draggingRef.current ||
+        returningRef.current ||
+        Math.abs(traceRef.current - visualTraceRef.current) > 0.05 ||
+        Math.abs(visualTraceRef.current - waterRef.current) > 0.05;
+
+      if (stillMoving) {
+        renderFrameRef.current = requestAnimationFrame(tick);
+      } else {
+        renderFrameRef.current = null;
+      }
+    };
+
+    renderFrameRef.current = requestAnimationFrame(tick);
+  };
+
+  useEffect(() => {
+    paintGate();
+    return () => {
+      if (renderFrameRef.current) cancelAnimationFrame(renderFrameRef.current);
+      if (returnFrameRef.current) cancelAnimationFrame(returnFrameRef.current);
+    };
+  }, []);
+
+  const angleFromEvent = e => {
+    const rect = gateRef.current?.getBoundingClientRect();
+    if (!rect) return null;
+    const x = e.clientX - (rect.left + rect.width / 2);
+    const y = e.clientY - (rect.top + rect.height / 2);
+    return (Math.atan2(y, x) * 180 / Math.PI + 450) % 360;
+  };
+
+  const applyAngle = angle => {
+    if (angle === null || lastAngleRef.current === null) return;
+    let delta = angle - lastAngleRef.current;
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+
+    if (delta > 0) {
+      traceRef.current = Math.min(unlockAt, traceRef.current + delta);
+    } else {
+      traceRef.current = Math.max(0, traceRef.current + delta * 0.35);
+    }
+
+    lastAngleRef.current = angle;
+  };
+
+  const startTrace = e => {
+    if (opening) return;
+    if (returnFrameRef.current) cancelAnimationFrame(returnFrameRef.current);
+    returnFrameRef.current = null;
+    returningRef.current = false;
+    setReturning(false);
+    setTracing(true);
+    traceRef.current = visualTraceRef.current;
+    draggingRef.current = true;
+    lastAngleRef.current = angleFromEvent(e);
+    if (e.currentTarget.setPointerCapture) e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const moveTrace = e => {
+    if (!draggingRef.current) return;
+    const nativeEvents = e.nativeEvent?.getCoalescedEvents?.() || [e.nativeEvent || e];
+    nativeEvents.forEach(ev => applyAngle(angleFromEvent(ev)));
+    runVisualLoop();
+    if (traceRef.current >= unlockAt) {
+      draggingRef.current = false;
+      traceRef.current = unlockAt;
+      visualTraceRef.current = unlockAt;
+      waterRef.current = unlockAt;
+      paintGate();
+      setTracing(false);
+      setOpening(true);
+      window.setTimeout(onUnlock, 520);
+    }
+  };
+
+  const returnDial = () => {
+    const startTraceValue = traceRef.current;
+    const startWaterValue = waterRef.current;
+    const duration = 1150 + Math.min(1, startTraceValue / unlockAt) * 650;
+    const startedAt = performance.now();
+    returningRef.current = true;
+    setReturning(true);
+    setTracing(false);
+
+    const animate = time => {
+      const t = Math.min(1, (time - startedAt) / duration);
+      const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const remaining = 1 - eased;
+      traceRef.current = startTraceValue * remaining;
+      waterRef.current = startWaterValue * remaining;
+      runVisualLoop();
+
+      if (t < 1) {
+        returnFrameRef.current = requestAnimationFrame(animate);
+      } else {
+        traceRef.current = 0;
+        visualTraceRef.current = 0;
+        waterRef.current = 0;
+        returnFrameRef.current = null;
+        returningRef.current = false;
+        paintGate();
+        setReturning(false);
+      }
+    };
+
+    returnFrameRef.current = requestAnimationFrame(animate);
+  };
+
+  const endTrace = e => {
+    draggingRef.current = false;
+    lastAngleRef.current = null;
+    if (e.currentTarget.releasePointerCapture) e.currentTarget.releasePointerCapture(e.pointerId);
+    if (!opening && traceRef.current < unlockAt) {
+      returnDial();
+    }
+  };
+
+  return (
+    <div className="hero-logo-gate r d2">
+      <button
+        className={`logo-emblem${tracing ? ' tracing' : ''}${opening ? ' opening' : ''}${returning ? ' returning' : ''}`}
+        type="button"
+        ref={gateRef}
+        aria-label="Circular logo entrance to hobbies"
+        onPointerDown={startTrace}
+        onPointerMove={moveTrace}
+        onPointerUp={endTrace}
+        onPointerCancel={endTrace}
+        onPointerLeave={endTrace}
+      >
+        <span className="logo-visual" ref={visualRef}>
+          <span className="logo-water" aria-hidden="true">
+            <span className="water-wave wave-a"></span>
+            <span className="water-wave wave-b"></span>
+          </span>
+          <svg className="logo-orbit" viewBox="0 0 360 360" aria-hidden="true">
+            <defs>
+              <path id="heroTopArc" d="M 54 181 A 126 126 0 0 1 306 181" />
+              <path id="heroBottomArc" d="M 306 181 A 126 126 0 0 1 54 181" />
+            </defs>
+            <circle className="orbit-guide" cx="180" cy="180" r="142" />
+            <g className="orbit-copy">
+              <text className="orbit-text orbit-top">
+                <textPath href="#heroTopArc" startOffset="50%" textAnchor="middle">Solve Tiny, Impact Daily.</textPath>
+              </text>
+              <text className="orbit-text orbit-bottom">
+                <textPath href="#heroBottomArc" startOffset="50%" textAnchor="middle">Build Smarter with AI.</textPath>
+              </text>
+              <circle className="orbit-dot dot-left" cx="42" cy="180" r="5" />
+              <circle className="orbit-dot dot-right" cx="318" cy="180" r="5" />
+            </g>
+            <g className="center-mark">
+              <path d="M145 151 L181 143" />
+              <path d="M145 151 L145 209 L180 224 L214 215 L214 189" />
+              <rect x="183" y="162" width="18" height="18" rx="1.5" />
+              <rect x="216" y="130" width="20" height="20" rx="1.5" />
+              <rect className="pixel-accent" x="208" y="169" width="18" height="18" rx="1.5" />
+              <rect className="pixel-accent soft" x="194" y="195" width="18" height="18" rx="1.5" />
+            </g>
+          </svg>
+        </span>
+      </button>
+      <div className="logo-gate-meta">
+        <span>TRACE LOGO</span>
+        <span>HOBBIES</span>
+      </div>
+    </div>
+  );
+}
+
+function Hero({ onSecretOpen }) {
   return (
     <section id="home" className="hero" data-screen-label="Hero">
       <div className="hero-i">
@@ -73,23 +325,14 @@ function Hero() {
           <p className="hero-eyebrow r">Hello, I'm</p>
           <h1 className="hero-title r d1">Engineering<br /><span className="accent">The Future.</span></h1>
           <p className="hero-sub r d2">テクノロジーで、日常の「あったらいいな」をカタチにする。</p>
-          <p className="hero-desc r d2">電気通信大学で工学を学ぶ4年生。AIテクノロジーを活用して、人の役に立つプロダクトを生み出すことに情熱を注いでいます。</p>
+          <p className="hero-desc r d2">電気通信大学でIT分野を学ぶ4年生。AIテクノロジーを活用して、人の役に立つプロダクトを生み出すことに情熱を注いでいます。</p>
           <div className="hero-btns r d3">
             <button className="btn-p" onClick={() => document.getElementById('about').scrollIntoView({block:'start'})}>About Me →</button>
             <button className="btn-s" onClick={() => document.getElementById('works').scrollIntoView({block:'start'})}>View Works →</button>
           </div>
         </div>
         <div className="hero-right">
-          <img className="hero-dec1" src="uploads/08_dot_grid_black.png" alt="" />
-          <img className="hero-dec2" src="uploads/07_lime_hexagon_outline.png" alt="" />
-          <img className="hero-dec3" src="uploads/19_large_sparkle_star.png" alt="" />
-          <img className="hero-dec4" src="uploads/18_small_sparkle_star.png" alt="" />
-          <div className="hero-img-wrap">
-            <div className="hero-cutout">
-              <img src="uploads/03_about_image_blob_mask.png" alt="RK" />
-            </div>
-
-          </div>
+          <HeroLogoGate onUnlock={onSecretOpen} />
         </div>
       </div>
       <div className="scroll-ind">
@@ -115,12 +358,12 @@ function About() {
           </div>
           <div>
             <div className="r">
-              {[['Name','R.K.'],['University','電気通信大学'],['Faculty','情報理工学部'],['Grade','4年生'],['Hometown','東京都'],['Hobby','AI開発 / サッカー / カフェ巡り']].map(([k,v]) => (
+              {[['Name','R.K.'],['University','電気通信大学'],['Faculty','情報理工学部'],['Grade','4年生'],['Hometown','東京都'],['Hobby','AI開発 / PCゲーム / 朝ごはん屋さん巡り']].map(([k,v]) => (
                 <div key={k} className="about-row"><span className="about-key">{k}</span><span className="about-val">{v}</span></div>
               ))}
             </div>
             <div style={{marginTop:48,opacity:0.25}}>
-              <img src="uploads/10_geometric_wireframe_hexagon.png" alt="" style={{width:160}} />
+              <div className="about-mark" aria-hidden="true"></div>
             </div>
           </div>
         </div>
@@ -297,9 +540,9 @@ function Strengths() {
 
 function Achievements() {
   const stats = [
-    { icon: 'uploads/47_programming_code_icon.png', label: 'プログラミングコンテスト\n入賞', value: 3, unit: '回' },
+    { icon: 'uploads/47_programming_code_icon.png', label: 'ホワイトハッカーコンテスト\n入賞', value: 1, unit: '回' },
     { icon: 'uploads/50_development_laptop_icon.png', label: '個人プロジェクト\n開発数', value: 7, unit: '+' },
-    { icon: 'uploads/48_teamwork_icon.png', label: '保有資格', value: 5, unit: '個' },
+    { icon: 'uploads/48_teamwork_icon.png', label: '実装実績', value: 5, unit: '個' },
     { icon: 'uploads/44_soccer_icon.png', label: 'サッカー歴', value: 12, unit: '年' },
   ];
   return (
@@ -338,7 +581,7 @@ function FAQ() {
             <h2 className="sec-title r">FAQ<span className="dot">.</span></h2>
             <p className="sec-sub r">よくある質問</p>
             <p className="faq-intro-txt r">お問い合わせの前に、よくいただくご質問をまとめました。解決しない場合はお気軽にご連絡ください。</p>
-            <img className="faq-glow r" src="uploads/06_purple_lime_blur_glow.png" alt="" />
+            <div className="faq-glow r" aria-hidden="true"></div>
           </div>
           <div className="r">
             {FAQS.map((f,i) => (
@@ -380,11 +623,11 @@ function Contact() {
             </div>
             <div className="contact-info">
               <a className="contact-email-row" href="mailto:rk.dev1004@gmail.com">
-                <img className="contact-email-icon" src="uploads/51_email_icon.png" alt="" />
+                <span className="contact-email-icon" aria-hidden="true">@</span>
                 <span className="contact-email-txt">rk.dev1004@gmail.com</span>
               </a>
               <a className="contact-email-row" href="#" target="_blank">
-                <img className="contact-email-icon" src="uploads/53_github_icon.png" alt="" />
+                <span className="contact-email-icon" aria-hidden="true">GH</span>
                 <span className="contact-email-txt">github.com/rk-dev</span>
               </a>
               <div className="contact-sns-label">SNS</div>
@@ -406,7 +649,7 @@ function Contact() {
           </div>
           <div>
             <div className="contact-form-title">お問い合わせ</div>
-            <div className="contact-form-sub">お仕事の依頼・インターンのご相談など、お気軽にご連絡ください。</div>
+            <div className="contact-form-sub">お仕事の依頼・ご相談など、お気軽にご連絡ください。</div>
             <form className="c-form" onSubmit={submit}>
               <input className="c-input" placeholder="お名前" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required />
               <input className="c-input" type="email" placeholder="メールアドレス" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} required />
@@ -420,22 +663,116 @@ function Contact() {
   );
 }
 
+function HobbiesPage({ onBack }) {
+  return (
+    <main className="hobby-page">
+      <section className="hobby-hero" data-screen-label="Hobbies">
+        <div className="hobby-hero-i">
+          <div className="hobby-copy">
+            <p className="hero-eyebrow r">Secret room unlocked</p>
+            <h1 className="hobby-title r d1">Hobbies<span className="dot">.</span></h1>
+            <p className="hobby-lead r d2">技術の外側にある好きなことも、ものづくりの感性を育ててくれています。</p>
+            <div className="hobby-actions r d3">
+              <button className="btn-p hobby-back" onClick={() => onBack('home')}>Back Home →</button>
+              <button className="btn-s hobby-scroll" onClick={() => document.getElementById('hobby-list').scrollIntoView({block:'start'})}>Explore →</button>
+            </div>
+          </div>
+          <div className="hobby-lock r d2" aria-hidden="true">
+            <div className="hobby-lock-ring"></div>
+            <div className="hobby-lock-logo">RK</div>
+            <div className="hobby-lock-text">TRACE CLOCKWISE</div>
+          </div>
+        </div>
+      </section>
+      <section id="hobby-list" className="hobby-list">
+        <div className="w">
+          <div className="hobby-section-top">
+            <p className="sec-num r">Hidden 01</p>
+            <h2 className="sec-title r">What I Like<span className="dot">.</span></h2>
+          </div>
+          <div className="hobby-grid">
+            {HOBBIES.map((hobby, index) => (
+              <article className="hobby-card r" key={hobby.name} style={{'--hobby-color':hobby.color, transitionDelay:`${index * 0.08}s`}}>
+                <div className="hobby-card-head">
+                  <img src={hobby.icon} alt="" className="hobby-icon" />
+                  <span className="hobby-index">0{index + 1}</span>
+                </div>
+                <p className="hobby-kana">{hobby.kana}</p>
+                <h3>{hobby.name}</h3>
+                <p className="hobby-body">{hobby.body}</p>
+                <p className="hobby-note">{hobby.note}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
 function App() {
   const [active, setActive] = useState('home');
-  useReveal();
+  const [view, setView] = useState(window.location.hash === '#hobbies' ? 'hobbies' : 'main');
+  useReveal([view]);
   useEffect(() => {
+    if (view === 'hobbies') {
+      setActive('hobbies');
+      return undefined;
+    }
     const ids = [...NAVS.map(s=>s.toLowerCase()),'contact'];
     const obs = new IntersectionObserver(es => {
       es.forEach(e => { if (e.isIntersecting) setActive(e.target.id); });
     }, { threshold: 0.3 });
     ids.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
     return () => obs.disconnect();
+  }, [view]);
+
+  useEffect(() => {
+    const syncHash = () => setView(window.location.hash === '#hobbies' ? 'hobbies' : 'main');
+    window.addEventListener('hashchange', syncHash);
+    window.addEventListener('popstate', syncHash);
+    return () => {
+      window.removeEventListener('hashchange', syncHash);
+      window.removeEventListener('popstate', syncHash);
+    };
   }, []);
+
+  const openHobbies = () => {
+    setView('hobbies');
+    setActive('hobbies');
+    if (window.location.hash !== '#hobbies') window.history.pushState(null, '', '#hobbies');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const navigateSection = id => {
+    if (view === 'hobbies') {
+      setView('main');
+      window.history.pushState(null, '', window.location.pathname + window.location.search);
+      window.setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) window.scrollTo({ top: el.offsetTop - 64, behavior: 'smooth' });
+      }, 60);
+      return;
+    }
+    const el = document.getElementById(id);
+    if (el) window.scrollTo({ top: el.offsetTop - 64, behavior: 'smooth' });
+  };
+
+  if (view === 'hobbies') {
+    return (
+      <>
+        <Nav active="hobbies" onNavigate={navigateSection} />
+        <div className="site-lines hobby-lines" aria-hidden="true"></div>
+        <HobbiesPage onBack={navigateSection} />
+      </>
+    );
+  }
+
   return (
     <>
-      <Nav active={active} />
+      <Nav active={active} onNavigate={navigateSection} />
       <div className="site-lines" aria-hidden="true"></div>
-      <Hero />
+      <Hero onSecretOpen={openHobbies} />
       <About />
       <Works />
       <Strengths />
