@@ -20,12 +20,12 @@ const HOBBIES = [
     icon: 'uploads/44_soccer_icon.png',
   },
   {
-    name: 'Cafe Walk',
+    name: 'Breakfast Tour',
     kana: '朝ごはん屋さんめぐり',
     body: '朝活という習慣を大切にするため最近特にはまっています。空間や人柄などが特に顕著に反映されているため、新しい視点やアイデアを得るのに最適な趣味です。',
     note: 'coffee / design / quiet time',
     color: '#FF9B3D',
-    icon: 'uploads/45_idea_bulb_icon.png',
+    icon: 'uploads/52_breakfast_tour_icon.png',
   },
 ];
 
@@ -309,10 +309,6 @@ function HeroLogoGate({ onUnlock }) {
           </svg>
         </span>
       </button>
-      <div className="logo-gate-meta">
-        <span>TRACE LOGO</span>
-        <span>HOBBIES</span>
-      </div>
     </div>
   );
 }
@@ -544,7 +540,7 @@ function Achievements() {
     { icon: 'uploads/47_programming_code_icon.png', label: 'ホワイトハッカーコンテスト\n入賞', value: 1, unit: '回' },
     { icon: 'uploads/50_development_laptop_icon.png', label: '個人プロジェクト\n開発数', value: 7, unit: '+' },
     { icon: 'uploads/48_teamwork_icon.png', label: '実環境実装実績', value: 1, unit: '件' },
-    { icon: 'uploads/44_soccer_icon.png', label: 'AI駆動開発歴', value: 1, unit: '年' },
+    { icon: 'uploads/51_ai_development_icon.png', label: 'AI駆動開発歴', value: 1, unit: '年' },
   ];
   return (
     <section id="achievements" className="sec sec-white" data-screen-label="Achievements">
@@ -681,7 +677,6 @@ function HobbiesPage({ onBack }) {
           <div className="hobby-lock r d2" aria-hidden="true">
             <div className="hobby-lock-ring"></div>
             <div className="hobby-lock-logo">Ryo.S</div>
-            <div className="hobby-lock-text">TRACE CLOCKWISE</div>
           </div>
         </div>
       </section>
