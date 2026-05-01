@@ -84,6 +84,7 @@ const WORKS = [
     desc: '生徒の課題解決能力や柔軟性などの数値データを用いてAI分析を行い、成長予測、クラス替え後の雰囲気推測、文部科学省の示す教育プロジェクト提案などを行う教師補助AIツール。',
     accent: '#6C3CFF',
     dots: ['#FF5F57', '#FEBC2E', '#28C840'],
+    image: 'uploads/work_Educompass.png',
   },
   {
     title: '研究室用語ライブラリ',
