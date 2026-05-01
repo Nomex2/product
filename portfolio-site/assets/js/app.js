@@ -78,10 +78,38 @@ const FEATURED_GAMES = [
 ];
 
 const WORKS = [
-  { title: 'AI Chat Assistant', tags: ['React', 'OpenAI', 'TypeScript'], desc: 'OpenAI APIを活用したAIチャットアシスタントWebアプリ。会話履歴の保存機能付き。', accent: '#6C3CFF', dots: ['#FF5F57', '#FEBC2E', '#28C840'] },
-  { title: 'Study Scheduler', tags: ['Next.js', 'Tailwind', 'AI'], desc: 'AIが最適なスケジュールを提案するスタジオ管理ツール。学習効率を最大化します。', accent: '#D6FF3B', dots: ['#FF5F57', '#FEBC2E', '#28C840'] },
-  { title: 'Expense Tracker', tags: ['React', 'Node', 'Firebase'], desc: '旅行中の支出を記録・可視化するAD対応のスマートな家計簿アプリ。', accent: '#4ECDC4', dots: ['#FF5F57', '#FEBC2E', '#28C840'] },
-  { title: 'Portfolio Generator', tags: ['Vue', 'Vite', 'Figma API'], desc: 'Figmaデザインからポートフォリオサイトを自動生成するCLIツール。', accent: '#FF6B9D', dots: ['#FF5F57', '#FEBC2E', '#28C840'] },
+  {
+    title: 'EduCompass',
+    tags: ['AI', 'Education', 'Data Analysis'],
+    desc: '生徒の課題解決能力や柔軟性などの数値データを用いてAI分析を行い、成長予測、クラス替え後の雰囲気推測、文部科学省の示す教育プロジェクト提案などを行う教師補助AIツール。',
+    accent: '#6C3CFF',
+    dots: ['#FF5F57', '#FEBC2E', '#28C840'],
+  },
+  {
+    title: '研究室用語ライブラリ',
+    tags: ['Static HTML', 'WebDAV', 'Glossary'],
+    desc: '研究室活動で出てきた用語を解説し、タグ分けして閲覧しやすくした静的HTMLアプリケーション。WEBDAV環境で動く軽量な用語ライブラリです。',
+    accent: '#2FD7FF',
+    dots: ['#FF5F57', '#FEBC2E', '#28C840'],
+    url: 'https://nomex2.github.io/product/lab-glossary/',
+    image: 'uploads/work_lab_glossary.png',
+  },
+  {
+    title: 'Portfolio Site',
+    tags: ['Portfolio', 'React', 'UI Design'],
+    desc: '自己紹介、制作実績、強み、趣味をまとめたポートフォリオサイト。見せ方や動きも含めて、自分らしさが伝わる構成を目指して構築しました。',
+    accent: '#FF9B3D',
+    dots: ['#FF5F57', '#FEBC2E', '#28C840'],
+    url: 'https://nomex2.github.io/product/',
+    image: 'uploads/work_portfolio_site.png',
+  },
+  {
+    title: 'Coming Soon',
+    tags: ['Prototype', 'Web App', 'Planning'],
+    desc: '次の制作実績を追加予定です。現在の学びや開発経験を活かし、実用性と見た目の両方を磨いたプロダクトとして更新していきます。',
+    accent: '#D6FF3B',
+    dots: ['#FF5F57', '#FEBC2E', '#28C840'],
+  },
 ];
 
 const STRENGTHS = [
@@ -528,28 +556,42 @@ function Works() {
           onPointerLeave={endWorksDrag}
         >
           <div className="works-track" ref={trackRef} style={{ transform: 'translateX(0)', transition: 'none' }}>
-            {[...WORKS, ...WORKS].map((w, i) => (
-              <div key={i} className="work-card r" style={{ transitionDelay: `${i * 0.07}s` }}>
-                <div className="work-thumb" style={{ background: '#111118' }}>
-                  <div className="work-thumb-inner">
-                    <div className="work-thumb-bar">
-                      {w.dots.map((d, j) => <div key={j} className="work-thumb-dot" style={{ background: d }}></div>)}
-                    </div>
-                    <div className="work-thumb-content">
-                      <div style={{ textAlign: 'center' }}>
-                        <div style={{ width: 48, height: 48, borderRadius: 10, background: w.accent, margin: '0 auto 10px', opacity: 0.85 }}></div>
-                        <div style={{ fontFamily: 'monospace', fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.05em' }}>{w.title}</div>
+            {[...WORKS, ...WORKS].map((w, i) => {
+              const CardTag = w.url ? 'a' : 'div';
+              return (
+                <CardTag
+                  key={i}
+                  className={`work-card r${w.url ? ' work-link' : ''}`}
+                  href={w.url}
+                  target={w.url ? '_blank' : undefined}
+                  rel={w.url ? 'noopener noreferrer' : undefined}
+                  style={{ transitionDelay: `${i * 0.07}s` }}
+                >
+                  <div className="work-thumb" style={{ background: '#111118' }}>
+                    <div className="work-thumb-inner">
+                      <div className="work-thumb-bar">
+                        {w.dots.map((d, j) => <div key={j} className="work-thumb-dot" style={{ background: d }}></div>)}
+                      </div>
+                      <div className="work-thumb-content">
+                        {w.image ? (
+                          <img className="work-shot" src={w.image} alt={`${w.title} screenshot`} />
+                        ) : (
+                          <div style={{ textAlign: 'center' }}>
+                            <div style={{ width: 48, height: 48, borderRadius: 10, background: w.accent, margin: '0 auto 10px', opacity: 0.85 }}></div>
+                            <div style={{ fontFamily: 'monospace', fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.05em' }}>{w.title}</div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="work-body">
-                  <div className="work-tags">{w.tags.map(t => <span key={t} className="work-tag">{t}</span>)}</div>
-                  <div className="work-title">{w.title}</div>
-                  <div className="work-desc">{w.desc}</div>
-                </div>
-              </div>
-            ))}
+                  <div className="work-body">
+                    <div className="work-tags">{w.tags.map(t => <span key={t} className="work-tag">{t}</span>)}</div>
+                    <div className="work-title">{w.title}</div>
+                    <div className="work-desc">{w.desc}</div>
+                  </div>
+                </CardTag>
+              );
+            })}
           </div>
         </div>
       </div>
