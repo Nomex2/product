@@ -23,9 +23,57 @@ const HOBBIES = [
     name: 'Breakfast Tour',
     kana: '朝ごはん屋さんめぐり',
     body: '朝活という習慣を大切にするため最近特にはまっています。空間や人柄などが特に顕著に反映されているため、新しい視点やアイデアを得るのに最適な趣味です。',
-    note: 'coffee / design / quiet time',
+    note: 'morning routine / atmosphere / inspiration',
     color: '#FF9B3D',
     icon: 'uploads/52_breakfast_tour_icon.png',
+  },
+];
+
+const FEATURED_GAMES = [
+  {
+    name: 'Arknights',
+    label: 'Tactical Tower Defense',
+    body: 'リリースから継続して遊んでいるタイトル。戦術性の高いタワーディフェンスで、限られた手札から最適解を組み立てる柔軟な思考を養ってくれました。',
+    note: 'strategy / planning / adaptation',
+    color: '#2FD7FF',
+    icon: 'uploads/game_arknights_icon.png',
+    url: 'https://www.arknights.global/',
+  },
+  {
+    name: 'Endfield',
+    label: 'Open World Factory',
+    body: '最新のオープンワールドの中でも、工業を軸に自分だけの生産ラインを確立していくところに惹かれています。考えた構造が形になる感覚が魅力です。',
+    note: 'factory / systems / optimization',
+    color: '#D6FF3B',
+    icon: 'uploads/game_endfield_icon.jpg',
+    url: 'https://endfield.gryphline.com/en-us',
+  },
+  {
+    name: 'League of Legends',
+    label: 'MOBA Team Game',
+    body: '高い拡張性とチームゲームを要求されるMOBA。知識や経験を積むほど見えるものが増え、判断の精度を上げていく過程が面白いゲームです。',
+    note: 'knowledge / teamwork / macro',
+    color: '#6E84FF',
+    icon: 'uploads/game_lol_icon.svg',
+    url: 'https://www.leagueoflegends.com/en-us/',
+  },
+  {
+    name: 'Valorant',
+    label: 'Tactical Shooter',
+    body: 'サバイバルゲームが好きな自分にとって、オンライン上でタクティカルシューティングを味わえるゲーム性が好きです。連携と読み合いの密度に惹かれています。',
+    note: 'communication / tactics / focus',
+    color: '#FF4E64',
+    icon: 'uploads/game_valorant_icon.png',
+    url: 'https://playvalorant.com/en-us/',
+  },
+  {
+    name: 'Street Fighter 6',
+    label: 'Fighting Game',
+    body: '自分自身と向き合い、相手の動作に対応しながら、練習したコマンドを入力して相手を倒す格闘ゲームの要素に最近はまっています。',
+    note: 'practice / reaction / execution',
+    color: '#FF9B3D',
+    icon: 'uploads/game_sf6_icon.jpg',
+    url: 'https://www.streetfighter.com/6/',
   },
 ];
 
@@ -698,6 +746,35 @@ function HobbiesPage({ onBack }) {
                 <p className="hobby-body">{hobby.body}</p>
                 <p className="hobby-note">{hobby.note}</p>
               </article>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="game-feature">
+        <div className="w">
+          <div className="game-feature-top">
+            <div>
+              <p className="sec-num r">Hidden 02</p>
+              <h2 className="sec-title r">Games<span className="dot">.</span></h2>
+            </div>
+            <p className="game-feature-lead r d1">
+              どのゲームも一辺倒で応用の利かないものではなく、現実で活きる要素を持っているため今も愛好しています。
+            </p>
+          </div>
+          <div className="game-grid">
+            {FEATURED_GAMES.map((game, index) => (
+              <a className="game-card r" key={game.name} href={game.url} target="_blank" rel="noopener noreferrer" aria-label={`${game.name} official site`} style={{ '--game-color': game.color, transitionDelay: `${index * 0.08}s` }}>
+                <div className="game-card-head">
+                  <span className="game-icon-wrap">
+                    <img src={game.icon} alt="" className="game-icon" />
+                    <span className="game-number">{String(index + 1).padStart(2, '0')}</span>
+                  </span>
+                  <span className="game-label">{game.label}</span>
+                </div>
+                <h3>{game.name}</h3>
+                <p className="game-body">{game.body}</p>
+                <p className="game-note">{game.note}</p>
+              </a>
             ))}
           </div>
         </div>
