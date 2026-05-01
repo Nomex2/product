@@ -1,6 +1,7 @@
 ﻿const { useState, useEffect, useRef } = React;
 
 const NAVS = ['Home', 'About', 'Works', 'Strengths', 'Achievements', 'FAQ'];
+const WORK_WINDOW_DOTS = ['#FF5F57', '#FEBC2E', '#28C840'];
 
 const HOBBIES = [
   {
@@ -83,7 +84,6 @@ const WORKS = [
     tags: ['AI', 'Education', 'Data Analysis'],
     desc: '生徒の課題解決能力や柔軟性などの数値データを用いてAI分析を行い、成長予測、クラス替え後の雰囲気推測、文部科学省の示す教育プロジェクト提案などを行う教師補助AIツール。',
     accent: '#6C3CFF',
-    dots: ['#FF5F57', '#FEBC2E', '#28C840'],
     image: 'uploads/work_Educompass.png',
   },
   {
@@ -91,7 +91,6 @@ const WORKS = [
     tags: ['Static HTML', 'WebDAV', 'Glossary'],
     desc: '研究室活動で出てきた用語を解説し、タグ分けして閲覧しやすくした静的HTMLアプリケーション。WEBDAV環境で動く軽量な用語ライブラリです。',
     accent: '#2FD7FF',
-    dots: ['#FF5F57', '#FEBC2E', '#28C840'],
     url: 'https://nomex2.github.io/product/lab-glossary/',
     image: 'uploads/work_lab_glossary.png',
   },
@@ -100,7 +99,6 @@ const WORKS = [
     tags: ['Portfolio', 'React', 'UI Design'],
     desc: '自己紹介、制作実績、強み、趣味をまとめたポートフォリオサイト。見せ方や動きも含めて、自分らしさが伝わる構成を目指して構築しました。',
     accent: '#FF9B3D',
-    dots: ['#FF5F57', '#FEBC2E', '#28C840'],
     url: 'https://nomex2.github.io/product/',
     image: 'uploads/work_portfolio_site.png',
   },
@@ -109,7 +107,6 @@ const WORKS = [
     tags: ['React', 'Vite', 'Flask', 'SQLite'],
     desc: 'セキュリティニュースを題材に、毎日クエスト形式でサイバーセキュリティを学べる学習アプリ。ログイン後にデイリークエストへ挑戦し、選択式の問題に回答してXPを獲得できます。レベル、ストリーク、過去クエストの確認機能もあります。',
     accent: '#4ECDC4',
-    dots: ['#FF5F57', '#FEBC2E', '#28C840'],
     image: 'uploads/work_secure_quest.png',
   },
   {
@@ -117,7 +114,6 @@ const WORKS = [
     tags: ['Prototype', 'Web App', 'Planning'],
     desc: '次の制作実績を追加予定です。現在の学びや開発経験を活かし、実用性と見た目の両方を磨いたプロダクトとして更新していきます。',
     accent: '#D6FF3B',
-    dots: ['#FF5F57', '#FEBC2E', '#28C840'],
   },
 ];
 
@@ -188,6 +184,7 @@ function Nav({ active, onNavigate }) {
 function HeroLogoGate({ onUnlock }) {
   const gateRef = useRef(null);
   const visualRef = useRef(null);
+  const orbitRef = useRef(null);
   const draggingRef = useRef(false);
   const lastAngleRef = useRef(null);
   const traceRef = useRef(0);
@@ -206,10 +203,9 @@ function HeroLogoGate({ onUnlock }) {
     const waterProgress = Math.min(1, waterRef.current / unlockAt);
     const el = visualRef.current;
     if (!el) return;
-    el.style.setProperty('--gate-progress', progress);
-    el.style.setProperty('--gate-rotation', `${progress * 360}deg`);
     el.style.setProperty('--water-scale', waterProgress);
     el.style.setProperty('--water-opacity', 0.08 + waterProgress * 0.82);
+    orbitRef.current?.setAttribute('transform', `rotate(${progress * 360} 180 180)`);
   };
 
   const runVisualLoop = () => {
@@ -254,11 +250,18 @@ function HeroLogoGate({ onUnlock }) {
     };
   }, []);
 
+  const pointFromEvent = e => {
+    const touch = e.touches?.[0] || e.changedTouches?.[0];
+    if (touch) return touch;
+    return e;
+  };
+
   const angleFromEvent = e => {
     const rect = gateRef.current?.getBoundingClientRect();
     if (!rect) return null;
-    const x = e.clientX - (rect.left + rect.width / 2);
-    const y = e.clientY - (rect.top + rect.height / 2);
+    const point = pointFromEvent(e);
+    const x = point.clientX - (rect.left + rect.width / 2);
+    const y = point.clientY - (rect.top + rect.height / 2);
     return (Math.atan2(y, x) * 180 / Math.PI + 450) % 360;
   };
 
@@ -301,6 +304,7 @@ function HeroLogoGate({ onUnlock }) {
       visualTraceRef.current = unlockAt;
       waterRef.current = unlockAt;
       paintGate();
+      orbitRef.current?.setAttribute('transform', 'rotate(380 180 180)');
       setTracing(false);
       setOpening(true);
       window.setTimeout(onUnlock, 520);
@@ -349,6 +353,23 @@ function HeroLogoGate({ onUnlock }) {
     }
   };
 
+  const handleTouchStart = e => {
+    if (window.PointerEvent) return;
+    e.preventDefault();
+    startTrace(e);
+  };
+
+  const handleTouchMove = e => {
+    if (window.PointerEvent) return;
+    e.preventDefault();
+    moveTrace(e);
+  };
+
+  const handleTouchEnd = e => {
+    if (window.PointerEvent) return;
+    endTrace(e);
+  };
+
   return (
     <div className="hero-logo-gate r d2">
       <button
@@ -361,6 +382,10 @@ function HeroLogoGate({ onUnlock }) {
         onPointerUp={endTrace}
         onPointerCancel={endTrace}
         onPointerLeave={endTrace}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
       >
         <span className="logo-visual" ref={visualRef}>
           <span className="logo-water" aria-hidden="true">
@@ -373,12 +398,12 @@ function HeroLogoGate({ onUnlock }) {
               <path id="heroBottomArc" d="M 306 181 A 126 126 0 0 1 54 181" />
             </defs>
             <circle className="orbit-guide" cx="180" cy="180" r="142" />
-            <g className="orbit-copy">
+            <g className="orbit-copy" ref={orbitRef}>
               <text className="orbit-text orbit-top">
-                <textPath href="#heroTopArc" startOffset="50%" textAnchor="middle">Solve Tiny, Impact Daily.</textPath>
+                <textPath href="#heroTopArc" xlinkHref="#heroTopArc" startOffset="50%" textAnchor="middle">Solve Tiny, Impact Daily.</textPath>
               </text>
               <text className="orbit-text orbit-bottom">
-                <textPath href="#heroBottomArc" startOffset="50%" textAnchor="middle">Build Smarter with AI.</textPath>
+                <textPath href="#heroBottomArc" xlinkHref="#heroBottomArc" startOffset="50%" textAnchor="middle">Build Smarter with AI.</textPath>
               </text>
               <circle className="orbit-dot dot-left" cx="42" cy="180" r="5" />
               <circle className="orbit-dot dot-right" cx="318" cy="180" r="5" />
@@ -451,6 +476,33 @@ function About() {
         </div>
       </div>
     </section>
+  );
+}
+
+function WorkThumbnail({ work }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const showImage = work.image && !imageFailed;
+
+  return (
+    <div className="work-thumb">
+      <div className="work-thumb-inner">
+        <div className="work-thumb-bar">
+          {WORK_WINDOW_DOTS.map((dot, index) => (
+            <div key={index} className="work-thumb-dot" style={{ background: dot }}></div>
+          ))}
+        </div>
+        <div className="work-thumb-content">
+          {showImage ? (
+            <img className="work-shot" src={work.image} alt={`${work.title} screenshot`} onError={() => setImageFailed(true)} />
+          ) : (
+            <div className="work-placeholder">
+              <div className="work-placeholder-mark" style={{ background: work.accent }}></div>
+              <div className="work-placeholder-title">{work.title}</div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -539,11 +591,11 @@ function Works() {
         <div className="works-top">
           <div>
             <p className="sec-num r">02</p>
-            <h2 className="sec-title r" style={{ color: 'var(--black)' }}>Works<span className="dot">.</span></h2>
+            <h2 className="sec-title r">Works<span className="dot">.</span></h2>
             <p className="sec-sub r">制作実績</p>
             <p className="works-body-txt r">個人開発を中心に、AIやWeb技術を活かしたプロダクトを制作しています。ユーザー視点を大切に、シンプルで価値あるプロダクトを目指しています。</p>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 12 }}>
+          <div className="works-actions">
             <button className="btn-s" onClick={() => document.getElementById('contact').scrollIntoView({ block: 'start' })}>View All →</button>
             <div className="works-nav">
               <button className="wn-btn" onClick={() => moveWorks(-1)}>
@@ -570,29 +622,13 @@ function Works() {
               return (
                 <CardTag
                   key={i}
-                  className={`work-card r${w.url ? ' work-link' : ''}`}
+                  className="work-card r"
                   href={w.url}
                   target={w.url ? '_blank' : undefined}
                   rel={w.url ? 'noopener noreferrer' : undefined}
                   style={{ transitionDelay: `${i * 0.07}s` }}
                 >
-                  <div className="work-thumb" style={{ background: '#111118' }}>
-                    <div className="work-thumb-inner">
-                      <div className="work-thumb-bar">
-                        {w.dots.map((d, j) => <div key={j} className="work-thumb-dot" style={{ background: d }}></div>)}
-                      </div>
-                      <div className="work-thumb-content">
-                        {w.image ? (
-                          <img className="work-shot" src={w.image} alt={`${w.title} screenshot`} />
-                        ) : (
-                          <div style={{ textAlign: 'center' }}>
-                            <div style={{ width: 48, height: 48, borderRadius: 10, background: w.accent, margin: '0 auto 10px', opacity: 0.85 }}></div>
-                            <div style={{ fontFamily: 'monospace', fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.05em' }}>{w.title}</div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                  <WorkThumbnail work={w} />
                   <div className="work-body">
                     <div className="work-tags">{w.tags.map(t => <span key={t} className="work-tag">{t}</span>)}</div>
                     <div className="work-title">{w.title}</div>
