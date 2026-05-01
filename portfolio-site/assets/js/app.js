@@ -193,6 +193,7 @@ function HeroLogoGate({ onUnlock }) {
   const renderFrameRef = useRef(null);
   const returnFrameRef = useRef(null);
   const returningRef = useRef(false);
+  const touchActiveRef = useRef(false);
   const [opening, setOpening] = useState(false);
   const [returning, setReturning] = useState(false);
   const [tracing, setTracing] = useState(false);
@@ -290,7 +291,9 @@ function HeroLogoGate({ onUnlock }) {
     traceRef.current = visualTraceRef.current;
     draggingRef.current = true;
     lastAngleRef.current = angleFromEvent(e);
-    if (e.currentTarget.setPointerCapture) e.currentTarget.setPointerCapture(e.pointerId);
+    if (e.pointerId !== undefined && e.currentTarget.setPointerCapture) {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    }
   };
 
   const moveTrace = e => {
@@ -347,26 +350,59 @@ function HeroLogoGate({ onUnlock }) {
   const endTrace = e => {
     draggingRef.current = false;
     lastAngleRef.current = null;
-    if (e.currentTarget.releasePointerCapture) e.currentTarget.releasePointerCapture(e.pointerId);
+    if (e.pointerId !== undefined && e.currentTarget.releasePointerCapture) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
     if (!opening && traceRef.current < unlockAt) {
       returnDial();
     }
   };
 
+  const handlePointerStart = e => {
+    if (touchActiveRef.current) return;
+    startTrace(e);
+  };
+
+  const handlePointerMove = e => {
+    if (touchActiveRef.current) return;
+    moveTrace(e);
+  };
+
+  const handlePointerEnd = e => {
+    if (touchActiveRef.current) return;
+    endTrace(e);
+  };
+
   const handleTouchStart = e => {
-    if (window.PointerEvent) return;
+    touchActiveRef.current = true;
     e.preventDefault();
     startTrace(e);
   };
 
   const handleTouchMove = e => {
-    if (window.PointerEvent) return;
     e.preventDefault();
     moveTrace(e);
   };
 
   const handleTouchEnd = e => {
-    if (window.PointerEvent) return;
+    endTrace(e);
+    window.setTimeout(() => {
+      touchActiveRef.current = false;
+    }, 350);
+  };
+
+  const handleMouseStart = e => {
+    if (window.PointerEvent || touchActiveRef.current) return;
+    startTrace(e);
+  };
+
+  const handleMouseMove = e => {
+    if (window.PointerEvent || touchActiveRef.current) return;
+    moveTrace(e);
+  };
+
+  const handleMouseEnd = e => {
+    if (window.PointerEvent || touchActiveRef.current) return;
     endTrace(e);
   };
 
@@ -377,11 +413,15 @@ function HeroLogoGate({ onUnlock }) {
         type="button"
         ref={gateRef}
         aria-label="Circular logo entrance to hobbies"
-        onPointerDown={startTrace}
-        onPointerMove={moveTrace}
-        onPointerUp={endTrace}
-        onPointerCancel={endTrace}
-        onPointerLeave={endTrace}
+        onPointerDown={handlePointerStart}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
+        onPointerLeave={handlePointerEnd}
+        onMouseDown={handleMouseStart}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseEnd}
+        onMouseLeave={handleMouseEnd}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
