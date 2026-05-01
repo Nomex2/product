@@ -105,6 +105,14 @@ const WORKS = [
     image: 'uploads/work_portfolio_site.png',
   },
   {
+    title: 'Secure Quest',
+    tags: ['React', 'Vite', 'Flask', 'SQLite'],
+    desc: 'セキュリティニュースを題材に、毎日クエスト形式でサイバーセキュリティを学べる学習アプリ。ログイン後にデイリークエストへ挑戦し、選択式の問題に回答してXPを獲得できます。レベル、ストリーク、過去クエストの確認機能もあります。',
+    accent: '#4ECDC4',
+    dots: ['#FF5F57', '#FEBC2E', '#28C840'],
+    image: 'uploads/work_secure_quest.png',
+  },
+  {
     title: 'Coming Soon',
     tags: ['Prototype', 'Web App', 'Planning'],
     desc: '次の制作実績を追加予定です。現在の学びや開発経験を活かし、実用性と見た目の両方を磨いたプロダクトとして更新していきます。',
