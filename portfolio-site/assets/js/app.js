@@ -551,6 +551,7 @@ function Works() {
   const trackRef = useRef(null);
   const offsetRef = useRef(0);
   const draggingRef = useRef(false);
+  const hasDraggedRef = useRef(false);
   const dragStartXRef = useRef(0);
   const dragStartOffsetRef = useRef(0);
   const [cardW, setCardW] = useState(360);
@@ -609,6 +610,7 @@ function Works() {
 
   const startWorksDrag = e => {
     draggingRef.current = true;
+    hasDraggedRef.current = false;
     dragStartXRef.current = e.clientX;
     dragStartOffsetRef.current = offsetRef.current;
     if (e.currentTarget.setPointerCapture) e.currentTarget.setPointerCapture(e.pointerId);
@@ -617,12 +619,20 @@ function Works() {
   const dragWorks = e => {
     if (!draggingRef.current) return;
     const delta = e.clientX - dragStartXRef.current;
+    if (Math.abs(delta) > 6) hasDraggedRef.current = true;
     applyWorksOffset(dragStartOffsetRef.current - delta);
   };
 
   const endWorksDrag = e => {
     draggingRef.current = false;
     if (e.currentTarget.releasePointerCapture) e.currentTarget.releasePointerCapture(e.pointerId);
+  };
+
+  const openWorkLink = (event, detailUrl) => {
+    if (!detailUrl) return;
+    if (hasDraggedRef.current) {
+      event.preventDefault();
+    }
   };
 
   return (
@@ -636,7 +646,6 @@ function Works() {
             <p className="works-body-txt r">個人開発を中心に、AIやWeb技術を活かしたプロダクトを制作しています。ユーザー視点を大切に、シンプルで価値あるプロダクトを目指しています。</p>
           </div>
           <div className="works-actions">
-            <button className="btn-s" onClick={() => document.getElementById('contact').scrollIntoView({ block: 'start' })}>View All →</button>
             <div className="works-nav">
               <button className="wn-btn" onClick={() => moveWorks(-1)}>
                 <svg viewBox="0 0 12 12"><path d="M7.5 9.5L4 6l3.5-3.5" /></svg>
@@ -658,14 +667,15 @@ function Works() {
         >
           <div className="works-track" ref={trackRef} style={{ transform: 'translateX(0)', transition: 'none' }}>
             {[...WORKS, ...WORKS].map((w, i) => {
-              const CardTag = w.url ? 'a' : 'div';
+              const detailUrl = w.url || w.image;
+              const CardTag = detailUrl ? 'a' : 'div';
               return (
                 <CardTag
                   key={i}
                   className="work-card r"
-                  href={w.url}
-                  target={w.url ? '_blank' : undefined}
-                  rel={w.url ? 'noopener noreferrer' : undefined}
+                  href={detailUrl}
+                  aria-label={detailUrl ? `${w.title}の詳細を開く` : undefined}
+                  onClick={event => openWorkLink(event, detailUrl)}
                   style={{ transitionDelay: `${i * 0.07}s` }}
                 >
                   <WorkThumbnail work={w} />
